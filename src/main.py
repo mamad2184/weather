@@ -6,7 +6,11 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from src.weather import get_coordinates, get_current_weather
+from src.weather import (
+    get_coordinates,
+    get_current_weather,
+    get_weekly_forecast,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -103,6 +107,22 @@ async def get_weather(city: str):
             detail="خطای غیرمنتظره‌ای رخ داد. لطفاً بعداً دوباره تلاش کنید."
         )
 
+    # The weekly forecast is optional: a forecast-service failure
+    # should not prevent users from seeing the current weather.
+    try:
+        forecast = await get_weekly_forecast(
+            location["latitude"],
+            location["longitude"],
+            location["timezone"],
+        )
+    except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError):
+        logger.warning(
+            "Weekly forecast unavailable for %s",
+            location.get("name", city),
+            exc_info=True,
+        )
+        forecast = []
+
     return {
         "شهر": location["name"],
         "کشور": location.get("country", ""),
@@ -114,4 +134,5 @@ async def get_weather(city: str):
         "فشار هوا": weather["air_pressure_at_sea_level"],
         "وضعیت هوا": weather["weather_symbol"],
         "میزان بارش": weather["rain_mm"],
+        "پیش‌بینی هفتگی": forecast,
     }

@@ -33,6 +33,37 @@ const weatherTranslations = {
     thunderstorm: "طوفان همراه با رعد و برق"
 };
 
+const forecastConditions = {
+    0: { label: "آفتابی", icon: "☀️" },
+    1: { label: "عمدتاً آفتابی", icon: "🌤️" },
+    2: { label: "نیمه‌ابری", icon: "⛅" },
+    3: { label: "ابری", icon: "☁️" },
+    45: { label: "مه‌آلود", icon: "🌫️" },
+    48: { label: "مه یخ‌زده", icon: "🌫️" },
+    51: { label: "نم‌نم باران", icon: "🌦️" },
+    53: { label: "باران ملایم", icon: "🌦️" },
+    55: { label: "باران شدید", icon: "🌧️" },
+    56: { label: "باران یخ‌زده", icon: "🌧️" },
+    57: { label: "باران یخ‌زده", icon: "🌧️" },
+    61: { label: "باران سبک", icon: "🌧️" },
+    63: { label: "بارانی", icon: "🌧️" },
+    65: { label: "باران شدید", icon: "🌧️" },
+    66: { label: "باران یخ‌زده", icon: "🌧️" },
+    67: { label: "باران یخ‌زده شدید", icon: "🌧️" },
+    71: { label: "برف سبک", icon: "🌨️" },
+    73: { label: "برفی", icon: "❄️" },
+    75: { label: "برف شدید", icon: "❄️" },
+    77: { label: "دانه‌های برف", icon: "❄️" },
+    80: { label: "رگبار باران", icon: "🌦️" },
+    81: { label: "رگبار باران", icon: "🌧️" },
+    82: { label: "رگبار شدید", icon: "🌧️" },
+    85: { label: "رگبار برف", icon: "🌨️" },
+    86: { label: "رگبار برف شدید", icon: "❄️" },
+    95: { label: "رعدوبرق", icon: "⛈️" },
+    96: { label: "رعدوبرق و تگرگ", icon: "⛈️" },
+    99: { label: "رعدوبرق و تگرگ شدید", icon: "⛈️" }
+};
+
 function weatherIconFor(symbol) {
     if (!symbol) return "🌡️";
 
@@ -80,6 +111,100 @@ function addMetric(label, value, icon) {
     metricLabel.append(metricIcon, labelText);
     metric.append(metricLabel, metricValue);
     weatherCard.appendChild(metric);
+}
+
+function renderForecast(forecast) {
+    const section = document.createElement("section");
+    section.className = "forecast-section";
+
+    const heading = document.createElement("div");
+    heading.className = "forecast-heading";
+
+    const title = document.createElement("h3");
+    title.textContent = "پیش‌بینی ۷ روز آینده";
+
+    const subtitle = document.createElement("p");
+    subtitle.textContent = "پیش‌بینی روزانه دما و وضعیت هوا";
+
+    heading.append(title, subtitle);
+    section.appendChild(heading);
+
+    if (!Array.isArray(forecast) || forecast.length === 0) {
+        const unavailable = document.createElement("p");
+        unavailable.className = "forecast-unavailable";
+        unavailable.textContent = "در حال حاضر پیش‌بینی هفتگی در دسترس نیست.";
+        section.appendChild(unavailable);
+        weatherCard.appendChild(section);
+        return;
+    }
+
+    const list = document.createElement("div");
+    list.className = "forecast-grid";
+
+    forecast.forEach((day, index) => {
+        const card = document.createElement("article");
+        card.className = "forecast-day";
+
+        const date = new Date(`${day.date}T12:00:00`);
+        const dayName = document.createElement("p");
+        dayName.className = "forecast-date";
+        dayName.textContent = index === 0
+            ? "امروز"
+            : new Intl.DateTimeFormat("fa-IR", {
+                weekday: "long"
+            }).format(date);
+
+        const dateNumber = document.createElement("span");
+        dateNumber.className = "forecast-date-number";
+        dateNumber.textContent = new Intl.DateTimeFormat("fa-IR", {
+            day: "numeric",
+            month: "short"
+        }).format(date);
+
+        const condition = forecastConditions[day.weather_code] || {
+            label: "نامشخص",
+            icon: "🌡️"
+        };
+
+        const icon = document.createElement("span");
+        icon.className = "forecast-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = condition.icon;
+
+        const description = document.createElement("p");
+        description.className = "forecast-condition";
+        description.textContent = condition.label;
+
+        const temperatures = document.createElement("div");
+        temperatures.className = "forecast-temperatures";
+
+        const max = document.createElement("strong");
+        max.textContent = `${Math.round(day.temperature_max)}°`;
+
+        const min = document.createElement("span");
+        min.textContent = `${Math.round(day.temperature_min)}°`;
+
+        temperatures.append(max, min);
+
+        const rain = document.createElement("p");
+        rain.className = "forecast-rain";
+        rain.textContent = `💧 ${Number(day.precipitation || 0).toLocaleString("fa-IR", {
+            maximumFractionDigits: 1
+        })} میلی‌متر`;
+
+        card.append(
+            dayName,
+            dateNumber,
+            icon,
+            description,
+            temperatures,
+            rain
+        );
+        list.appendChild(card);
+    });
+
+    section.appendChild(list);
+    weatherCard.appendChild(section);
 }
 
 function renderWeather(data) {
@@ -139,6 +264,8 @@ function renderWeather(data) {
     addMetric("پوشش ابر", `${data["پوشش ابر"] ?? "—"}٪`, "☁️");
     addMetric("فشار هوا", `${data["فشار هوا"] ?? "—"} هکتوپاسکال`, "◉");
     addMetric("بارش ساعت آینده", `${data["میزان بارش"] ?? "—"} میلی‌متر`, "🌧️");
+
+    renderForecast(data["پیش‌بینی هفتگی"]);
 }
 
 async function searchWeather(event) {
