@@ -3,27 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آب‌وهوا</title>
+    <meta name="theme-color" content="#071426">
+    <meta name="description" content="وضعیت آب‌وهوا و اطلاعات جوی شهرهای جهان">
+    <title>آب‌وهوا | وضعیت جوی شهرها</title>
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='25' cy='23' r='11' fill='%23fbbf24'/%3E%3Cpath d='M19 47h29a10 10 0 0 0 0-20 15 15 0 0 0-28-2 11 11 0 0 0-1 22z' fill='%2338bdf8' stroke='%230f172a' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+    <main class="page-shell">
+        <header class="site-header">
+            <div class="brand-mark" aria-hidden="true">☀</div>
+            <div class="brand-copy">
+                <span class="eyebrow">آب‌وهوای جهان</span>
+                <h1>آب‌وهوا</h1>
+            </div>
+        </header>
 
-    <h1>آب‌وهوا</h1>
-
-    <main class="container">
-        <div class="search-box">
-            <input type="text" id="city" placeholder="نام شهر را وارد کنید">
-            <button id="search-btn">جستجو</button>
-        </div>
-
-        <section id="weather" class="weather-card">
-            <p>برای مشاهده وضعیت هوا، نام شهر را جستجو کنید.</p>
+        <section class="intro">
+            <p class="intro-kicker">همیشه یک قدم جلوتر از هوا</p>
+            <h2>آب‌وهوای شهر موردنظرت رو ببین</h2>
+            <p class="intro-description">نام یک شهر را وارد کن تا آخرین اطلاعات جوی و ساعت محلی آن را ببینی.</p>
         </section>
+
+        <section class="weather-panel" aria-label="جستجوی آب‌وهوا">
+            <form class="search-box" id="search-form" role="search">
+                <label class="sr-only" for="city">نام شهر</label>
+                <span class="search-icon" aria-hidden="true">⌕</span>
+                <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    placeholder="مثلاً تهران، پاریس یا توکیو"
+                    autocomplete="off"
+                    spellcheck="false"
+                    required
+                >
+                <button id="search-btn" type="submit">
+                    <span>جستجو</span>
+                    <span aria-hidden="true">←</span>
+                </button>
+            </form>
+
+            <section id="weather" class="weather-card" aria-live="polite" aria-atomic="true">
+                <div class="empty-state">
+                    <span class="empty-icon" aria-hidden="true">🌤️</span>
+                    <h3>دنبال آب‌وهوای کجا می‌گردی؟</h3>
+                    <p>نام شهر را جستجو کن تا وضعیت فعلی آن را ببینی.</p>
+                </div>
+            </section>
+        </section>
+
+        <footer class="site-footer">
+            <span>اطلاعات هواشناسی برای آگاهی بهتر از وضعیت جوی</span>
+        </footer>
     </main>
 
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.js" defer></script>
 </body>
 </html>

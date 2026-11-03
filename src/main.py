@@ -1,4 +1,3 @@
-
 import logging
 import httpx
 
@@ -36,7 +35,6 @@ async def get_weather(city: str):
             detail="لطفاً نام شهر را وارد کنید."
         )
 
-    # Find city coordinates
     try:
         location = await get_coordinates(city)
 
@@ -65,7 +63,6 @@ async def get_weather(city: str):
             detail="شهر موردنظر پیدا نشد. لطفاً نام شهر را بررسی کنید."
         )
 
-    # Get weather information
     try:
         weather = await get_current_weather(
             location["latitude"],
@@ -108,6 +105,7 @@ async def get_weather(city: str):
 
     return {
         "شهر": location["name"],
+        "کشور": location.get("country", ""),
         "ساعت محلی": weather["local_time"],
         "دما": weather["air_temperature"],
         "رطوبت": weather["relative_humidity"],
